@@ -60,10 +60,21 @@ tailscale ip -4
 
 ### Step 4: UserScript をインストール
 
-1. このリポジトリの `opencode-mobile.user.js` をダウンロードする
-2. Tampermonkey のアイコンをタップ →「ユーティリティ」タブ →「ファイルからインポート」で `.user.js` を選択
-   - または「新規スクリプトを作成」を選び、ファイルの内容をすべてコピーして貼り付け → 保存
-3. Tampermonkey 管理画面でスクリプトが「有効」になっていることを確認
+#### 方法A（推奨・ワンタップ）
+Tampermonkey は `.user.js` の URL を自動検出します。Android のブラウザで以下の URL を開くだけで、Tampermonkey がスクリプトを認識し、インストール画面が表示されます。「インストール」をタップするだけです。
+
+```
+https://raw.githubusercontent.com/masachika24/opencode-mobile/master/opencode-mobile.user.js
+```
+
+（URL を手打ちする代わりに、この README のリンクをタップしてもOKです）
+
+#### 方法B（URL 手入力）
+Tampermonkey アイコン →「ユーティリティ」タブ →「Install from URL」に上記 URL を貼り付けて「インストール」。
+
+#### 方法C（手動コピペ・最終手段）
+1. 上記 URL をブラウザで開き、表示されたコードを全選択コピー
+2. Tampermonkey →「新規スクリプトを作成」→ 貼り付け → 保存
 
 ### Step 5: アクセス
 
