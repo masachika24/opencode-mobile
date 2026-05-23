@@ -1,10 +1,15 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.0.0
+// @version      1.1.0
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
+// @match        http://*.ts.net:4000/*
+// @include      http://100.*:4000/*
+// @include      http://10.*:4000/*
+// @include      http://172.*:4000/*
+// @include      http://192.168.*:4000/*
 // @grant        GM_addStyle
 // @run-at       document-start
 // ==/UserScript==
@@ -12,7 +17,7 @@
 (function () {
     'use strict';
 
-    const DEBUG = false;
+    const DEBUG = true;
     const log = (...args) => DEBUG && console.log('[OCM]', ...args);
 
     // ================================================================
