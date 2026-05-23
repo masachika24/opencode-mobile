@@ -57,8 +57,11 @@ tailscale ip -4
 **Firefox (Android) の場合:**
 1. Firefox を Play ストアからインストール
 2. Firefox メニュー → アドオン → [Tampermonkey](https://addons.mozilla.org/ja/firefox/addon/tampermonkey/) を追加
+3. Firefox では `about:config` の変更や特別な設定は **不要** です。アドオンを追加するだけで使えます。
 
 ### Step 4: UserScript をインストール
+
+> **注記:** Kiwi Browser / Firefox どちらでも同じ手順です。
 
 #### 方法A（推奨・ワンタップ）
 Tampermonkey は `.user.js` の URL を自動検出します。Android のブラウザで以下の URL を開くだけで、Tampermonkey がスクリプトを認識し、インストール画面が表示されます。「インストール」をタップするだけです。
@@ -68,6 +71,8 @@ https://raw.githubusercontent.com/masachika24/opencode-mobile/master/opencode-mo
 ```
 
 （URL を手打ちする代わりに、この README のリンクをタップしてもOKです）
+
+> Firefox の場合、URL を開くと「スクリプトをインストールしますか？」という Tampermonkey の確認ダイアログが表示されます。「インストール」をタップしてください。
 
 #### 方法B（URL 手入力）
 Tampermonkey アイコン →「ユーティリティ」タブ →「Install from URL」に上記 URL を貼り付けて「インストール」。
@@ -82,7 +87,9 @@ Tampermonkey アイコン →「ユーティリティ」タブ →「Install fro
    - `http://<自宅PCのTailscale IP>:4000` (例: `http://100.123.45.67:4000`)
    - `http://<ホスト名>.ts.net:4000` (例: `http://my-pc.ts.net:4000`)
 2. Basic 認証のダイアログが表示されたら、ユーザー名・パスワードを入力
-3. **画面下部に「Sessions / Editor / Settings」のボトムナビゲーションバーが表示されれば成功です**
+   - Firefox の場合も、ブラウザ標準の Basic 認証ダイアログが表示されます。
+3. 初回アクセス時に HTTP（HTTPS ではない）接続であることによる「安全ではありません」という警告が出る場合があります。Tailscale は WireGuard による暗号化トンネルを張っているため、通信は保護されており安全です。
+4. **画面下部に「Sessions / Editor / Settings」のボトムナビゲーションバーが表示されれば成功です**
 
 ## 動作確認
 
@@ -103,6 +110,11 @@ Tampermonkey アイコン →「ユーティリティ」タブ →「Install fro
 
 - Tampermonkey 管理画面で当スクリプトが**有効**（緑色のトグル）になっているか確認
 - Tampermonkey 拡張機能自体が有効か確認（ブラウザの拡張機能設定から）
+
+#### Firefox で Tampermonkey が動かない場合
+
+- Firefox のメニュー → アドオン を開き、Tampermonkey が **有効**（青いトグルが ON）になっているか確認してください。
+- Firefox の「設定」→「プライバシーとセキュリティ」→「強化型トラッキング防止」で「厳格」モードにしている場合、トラッキングコンテンツのブロックが Tampermonkey の動作に影響することがあります。必要に応じて、アクセス先サイトを例外に追加するか、「標準」モードに切り替えてください。
 
 ### Tailscale アドレスでスクリプトが動作しない
 
