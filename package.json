@@ -1,0 +1,15 @@
+{
+  "name": "opencode-mobile",
+  "version": "1.5.1",
+  "description": "OpenCode Web UI mobile optimizer UserScript",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:syntax && npm run test:css && npm run test:selectors",
+    "test:selectors": "node test/selector-validate.js",
+    "test:syntax": "node test/syntax-check.js",
+    "test:css": "node test/css-check.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

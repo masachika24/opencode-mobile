@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.5.0
+// @version      1.5.1
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
@@ -208,7 +208,6 @@
     }
 
 }
-}
 
 /* Desktop: hide mobile-only elements */
 @media (min-width: 1024px) {
@@ -272,10 +271,13 @@
         sessionBtn.innerHTML = sessionSVG + '<span>Sessions</span>';
         sessionBtn.onclick = function () {
             // モバイル用ハンバーガーメニュー (viewport < 1280px で表示)
+            // サイドバーが閉じている場合のみ開く（開いている場合はそのまま）
             const menuBtn = document.querySelector('button[aria-label="Toggle menu"]');
-            if (menuBtn) menuBtn.click();
+            if (!menuBtn) { setNavActive(this); return; }
+            const menuExpanded = menuBtn.getAttribute('aria-expanded');
+            if (menuExpanded !== 'true') menuBtn.click();
             setNavActive(this);
-            log('nav: sessions clicked (Toggle menu)');
+            log('nav: sessions clicked (open sidebar if closed)');
         };
 
         // Editor button
