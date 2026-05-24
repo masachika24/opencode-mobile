@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.3.0
+// @version      1.3.1
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
@@ -84,6 +84,10 @@
 
     /* --- FR-04: Bottom navigation bar styles --- */
     #ocm-bottom-nav {
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        margin-top: auto;
         flex-shrink: 0;
         display: flex;
         justify-content: space-around;
