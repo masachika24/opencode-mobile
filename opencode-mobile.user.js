@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.5.1
+// @version      1.5.2
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
@@ -19,6 +19,31 @@
 
     const DEBUG = true;
     const log = (...args) => DEBUG && console.log('[OCM]', ...args);
+
+    function waitForElement(selector, timeout = 5000) {
+        return new Promise((resolve) => {
+            const el = document.querySelector(selector);
+            if (el) return resolve(el);
+
+            const observer = new MutationObserver(() => {
+                const el = document.querySelector(selector);
+                if (el) {
+                    observer.disconnect();
+                    resolve(el);
+                }
+            });
+
+            observer.observe(document.body || document.documentElement, {
+                childList: true,
+                subtree: true
+            });
+
+            setTimeout(() => {
+                observer.disconnect();
+                resolve(null);
+            }, timeout);
+        });
+    }
 
     // ================================================================
     // SECTION 1: Mobile Detection
@@ -205,6 +230,7 @@
         padding-top: env(safe-area-inset-top, 0px) !important;
         padding-left: env(safe-area-inset-left, 0px) !important;
         padding-right: env(safe-area-inset-right, 0px) !important;
+        padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)) !important;
     }
 
 }
@@ -270,14 +296,15 @@
         sessionBtn.setAttribute('aria-label', 'Open session list');
         sessionBtn.innerHTML = sessionSVG + '<span>Sessions</span>';
         sessionBtn.onclick = function () {
-            // モバイル用ハンバーガーメニュー (viewport < 1280px で表示)
-            // サイドバーが閉じている場合のみ開く（開いている場合はそのまま）
-            const menuBtn = document.querySelector('button[aria-label="Toggle menu"]');
+            const menuBtn = document.querySelector('[data-component="icon-button"][data-icon="menu"]')
+                         || document.querySelector('button[aria-label="Toggle menu"]');
             if (!menuBtn) { setNavActive(this); return; }
             const menuExpanded = menuBtn.getAttribute('aria-expanded');
-            if (menuExpanded !== 'true') menuBtn.click();
+            if (menuExpanded !== 'true') {
+                menuBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+            }
             setNavActive(this);
-            log('nav: sessions clicked (open sidebar if closed)');
+            log('nav: sessions clicked');
         };
 
         // Editor button
@@ -288,12 +315,13 @@
         editorBtn.className = 'ocm-active';
         editorBtn.innerHTML = editorSVG + '<span>Editor</span>';
         editorBtn.onclick = function () {
-            // サイドバーが開いていれば閉じる
-            const menuBtn = document.querySelector('button[aria-label="Toggle menu"]');
+            const menuBtn = document.querySelector('[data-component="icon-button"][data-icon="menu"]')
+                         || document.querySelector('button[aria-label="Toggle menu"]');
             const menuExpanded = menuBtn ? menuBtn.getAttribute('aria-expanded') : null;
-            if (menuExpanded === 'true' && menuBtn) menuBtn.click();
+            if (menuExpanded === 'true' && menuBtn) {
+                menuBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+            }
 
-            // 正しいプロンプト入力欄を探してフォーカス
             const promptInput = document.querySelector('[data-component="prompt-input"]') ||
                                 document.querySelector('[role="textbox"][contenteditable="true"]');
             if (promptInput) promptInput.focus();
@@ -308,23 +336,17 @@
         settingsBtn.setAttribute('aria-label', 'Open settings');
         settingsBtn.innerHTML = settingsSVG + '<span>Settings</span>';
         settingsBtn.onclick = function () {
-            // Settings ボタンは sidebar rail 内にある
-            const trigger = document.querySelector('button[aria-label="Settings"]');
-            if (trigger) trigger.click();
+            const trigger = document.querySelector('[data-component="icon-button"][data-icon="settings-gear"]')
+                         || document.querySelector('button[aria-label="Settings"]');
+            if (trigger) trigger.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
             setNavActive(this);
-            log('nav: settings clicked (sidebar rail)');
+            log('nav: settings clicked');
         };
 
         nav.appendChild(sessionBtn);
         nav.appendChild(editorBtn);
         nav.appendChild(settingsBtn);
         document.body.appendChild(nav);
-
-        // #root に下部パディングを追加して、nav とコンテンツの重なりを防止
-        const rootEl = document.getElementById('root');
-        if (rootEl) {
-            rootEl.style.paddingBottom = '3.5rem';
-        }
 
         log('nav created with inline onclick handlers');
     }
@@ -499,17 +521,17 @@
             const isClosed = sidebarPanel.classList.contains('-translate-x-full');
 
             if (deltaX > 0 && (isClosed || !isOpen) && startX < 40) {
-                // Swipe right from left edge → open sidebar
-                const menuBtn = document.querySelector('button[aria-label="Toggle menu"]');
+                const menuBtn = document.querySelector('[data-component="icon-button"][data-icon="menu"]')
+                             || document.querySelector('button[aria-label="Toggle menu"]');
                 if (menuBtn) {
-                    menuBtn.click();
+                    menuBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
                     log('Swipe: opening sidebar');
                 }
             } else if (deltaX < 0 && isOpen) {
-                // Swipe left → close sidebar
-                const menuBtn = document.querySelector('button[aria-label="Toggle menu"]');
+                const menuBtn = document.querySelector('[data-component="icon-button"][data-icon="menu"]')
+                             || document.querySelector('button[aria-label="Toggle menu"]');
                 if (menuBtn) {
-                    menuBtn.click();
+                    menuBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
                     log('Swipe: closing sidebar via toggle');
                 }
             }
