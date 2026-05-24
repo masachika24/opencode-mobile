@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.1.1
+// @version      1.2.0
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
@@ -131,6 +131,7 @@
         height: 1.25rem;
         margin-bottom: 1px;
         stroke: currentColor;
+        pointer-events: none !important;
     }
 
     #ocm-bottom-nav button.ocm-active {
@@ -273,11 +274,7 @@
     // ================================================================
 
     function createBottomNav() {
-        const existingNav = document.getElementById('ocm-bottom-nav');
-        if (existingNav) {
-            bindBottomNavEvents(existingNav);
-            return;
-        }
+        if (document.getElementById('ocm-bottom-nav')) return;
         if (!document.body) return;
 
         const nav = document.createElement('nav');
@@ -287,84 +284,66 @@
         const editorSVG = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
         const settingsSVG = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
 
-        nav.innerHTML = [
-            '<button id="ocm-nav-sessions" title="Sessions" aria-label="Open session list">',
-                sessionSVG,
-                '<span>Sessions</span>',
-            '</button>',
-            '<button id="ocm-nav-editor" title="Editor" aria-label="Go to editor" class="ocm-active">',
-                editorSVG,
-                '<span>Editor</span>',
-            '</button>',
-            '<button id="ocm-nav-settings" title="Settings" aria-label="Open settings">',
-                settingsSVG,
-                '<span>Settings</span>',
-            '</button>'
-        ].join('');
-
-        document.body.appendChild(nav);
-        bindBottomNavEvents(nav);
-    }
-
-    function bindBottomNavEvents(nav) {
-        if (nav.hasAttribute('data-ocm-events-bound')) return;
-
-        const sessionBtn = nav.querySelector('#ocm-nav-sessions');
-        const editorBtn = nav.querySelector('#ocm-nav-editor');
-        const settingsBtn = nav.querySelector('#ocm-nav-settings');
-
-        function setActive(btn) {
-            nav.querySelectorAll('button').forEach(b => b.classList.remove('ocm-active'));
-            btn.classList.add('ocm-active');
+        function setNavActive(activeBtn) {
+            nav.querySelectorAll('button').forEach(function (b) {
+                b.classList.remove('ocm-active');
+            });
+            activeBtn.classList.add('ocm-active');
         }
 
-        function debounce(fn) {
-            let last = 0;
-            return () => {
-                const now = Date.now();
-                if (now - last < 300) return;
-                last = now;
-                fn();
-            };
-        }
-
-        const sessionHandler = debounce(() => {
-            log('nav button clicked: sessions');
+        // Sessions button
+        const sessionBtn = document.createElement('button');
+        sessionBtn.id = 'ocm-nav-sessions';
+        sessionBtn.title = 'Sessions';
+        sessionBtn.setAttribute('aria-label', 'Open session list');
+        sessionBtn.innerHTML = sessionSVG + '<span>Sessions</span>';
+        sessionBtn.onclick = function () {
             const menuBtn = document.querySelector('[data-action="project-menu"]');
             if (menuBtn) menuBtn.click();
-            setActive(sessionBtn);
-        });
-        sessionBtn.addEventListener('click', sessionHandler, { capture: true });
-        sessionBtn.addEventListener('touchend', sessionHandler, { capture: true });
+            setNavActive(this);
+            log('nav: sessions clicked');
+        };
 
-        const editorHandler = debounce(() => {
-            log('nav button clicked: editor');
+        // Editor button
+        const editorBtn = document.createElement('button');
+        editorBtn.id = 'ocm-nav-editor';
+        editorBtn.title = 'Editor';
+        editorBtn.setAttribute('aria-label', 'Go to editor');
+        editorBtn.className = 'ocm-active';
+        editorBtn.innerHTML = editorSVG + '<span>Editor</span>';
+        editorBtn.onclick = function () {
             const overlay = document.querySelector('[data-component="dialog-overlay"]');
-            if (overlay && window.getComputedStyle(overlay).opacity !== '0') {
-                overlay.click();
-            }
+            if (overlay && window.getComputedStyle(overlay).opacity !== '0') overlay.click();
             const editable = document.querySelector('[contenteditable="true"]') ||
                              document.querySelector('textarea') ||
                              document.querySelector('.ProseMirror');
             if (editable) editable.focus();
-            setActive(editorBtn);
-        });
-        editorBtn.addEventListener('click', editorHandler, { capture: true });
-        editorBtn.addEventListener('touchend', editorHandler, { capture: true });
+            setNavActive(this);
+            log('nav: editor clicked');
+        };
 
-        const settingsHandler = debounce(() => {
-            log('nav button clicked: settings');
+        // Settings button
+        const settingsBtn = document.createElement('button');
+        settingsBtn.id = 'ocm-nav-settings';
+        settingsBtn.title = 'Settings';
+        settingsBtn.setAttribute('aria-label', 'Open settings');
+        settingsBtn.innerHTML = settingsSVG + '<span>Settings</span>';
+        settingsBtn.onclick = function () {
             const trigger = document.querySelector('[aria-label*="setting" i]') ||
                             document.querySelector('[title*="setting" i]') ||
                             document.querySelector('[data-action="settings"]') ||
                             document.querySelector('button:has(svg[class*="gear"])');
             if (trigger) trigger.click();
-            setActive(settingsBtn);
-        });
-        settingsBtn.addEventListener('click', settingsHandler, { capture: true });
-        settingsBtn.addEventListener('touchend', settingsHandler, { capture: true });
+            setNavActive(this);
+            log('nav: settings clicked');
+        };
 
-        nav.setAttribute('data-ocm-events-bound', '1');
+        nav.appendChild(sessionBtn);
+        nav.appendChild(editorBtn);
+        nav.appendChild(settingsBtn);
+        document.body.appendChild(nav);
+
+        log('nav created with inline onclick handlers');
     }
 
     // ================================================================
