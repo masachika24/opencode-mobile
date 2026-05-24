@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.4.0
+// @version      1.5.0
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
@@ -84,11 +84,11 @@
 
     /* --- FR-04: Bottom navigation bar styles --- */
     #ocm-bottom-nav {
-        position: sticky;
+        position: fixed;
         bottom: 0;
-        z-index: 50;
-        margin-top: auto;
-        flex-shrink: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
         display: flex;
         justify-content: space-around;
         align-items: center;
@@ -316,7 +316,13 @@
         nav.appendChild(sessionBtn);
         nav.appendChild(editorBtn);
         nav.appendChild(settingsBtn);
-        root.appendChild(nav);
+        document.body.appendChild(nav);
+
+        // #root に下部パディングを追加して、nav とコンテンツの重なりを防止
+        const rootEl = document.getElementById('root');
+        if (rootEl) {
+            rootEl.style.paddingBottom = '3.5rem';
+        }
 
         log('nav created with inline onclick handlers');
     }
@@ -569,6 +575,9 @@
             const chips = document.getElementById('ocm-file-chips');
             if (nav) nav.remove();
             if (chips) chips.remove();
+            // #root の下部パディングをリセット
+            const rootEl = document.getElementById('root');
+            if (rootEl) rootEl.style.paddingBottom = '';
         }
     });
 
