@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.2.0
+// @version      1.3.0
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
@@ -69,10 +69,6 @@
         pointer-events: auto !important;
     }
 
-    /* --- FR-01, FR-02: Reduce excessive padding/margins --- */
-    #root > * {
-        padding-top: 0 !important;
-    }
 
     /* --- FR-05: Truncate long session names in header --- */
     /* Target the session title text in the top bar */
@@ -88,16 +84,11 @@
 
     /* --- FR-04: Bottom navigation bar styles --- */
     #ocm-bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 9999;
-        pointer-events: auto !important;
+        flex-shrink: 0;
         display: flex;
         justify-content: space-around;
         align-items: center;
-        height: 3rem;                          /* 48px */
+        height: 3.5rem;
         padding-bottom: env(safe-area-inset-bottom, 0px);
         background: var(--color-surface-base, #ffffff);
         border-top: 1px solid var(--color-border-weak-base, #e5e5e5);
@@ -205,29 +196,6 @@
         background: rgba(128, 128, 128, 0.2);
     }
 
-    /* --- FR-07: Dark mode --- */
-    [data-color-scheme="dark"] #ocm-bottom-nav {
-        background: var(--color-surface-base, #1a1a1a);
-        border-top-color: var(--color-border-weak-base, #333333);
-    }
-    [data-color-scheme="dark"] #ocm-bottom-nav button {
-        color: var(--color-text-weak-base, #999999);
-    }
-    [data-color-scheme="dark"] #ocm-file-chips {
-        background: var(--color-background-base, #111111);
-        border-bottom-color: var(--color-border-weak-base, #333333);
-    }
-    [data-color-scheme="dark"] #ocm-file-chips .ocm-chip {
-        background: var(--color-surface-base, #1a1a1a);
-        border-color: var(--color-border-weak-base, #333333);
-        color: var(--color-text-base, #e0e0e0);
-    }
-    [data-color-scheme="dark"] #ocm-file-chips .ocm-chip.ocm-active {
-        background: var(--color-accent-base, #3399ff);
-        color: #ffffff;
-        border-color: var(--color-accent-base, #3399ff);
-    }
-
     /* --- FR-08: Safe area insets for notched devices --- */
     #root {
         padding-top: env(safe-area-inset-top, 0px) !important;
@@ -235,11 +203,7 @@
         padding-right: env(safe-area-inset-right, 0px) !important;
     }
 
-    /* --- Allow content to scroll above bottom nav --- */
-    /* Add padding-bottom to the scrollable inner area so bottom nav doesn't overlap content */
-    #root > div.flex-col.items-start {
-        padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px)) !important;
-    }
+}
 }
 
 /* Desktop: hide mobile-only elements */
@@ -275,7 +239,12 @@
 
     function createBottomNav() {
         if (document.getElementById('ocm-bottom-nav')) return;
-        if (!document.body) return;
+        if (!document.getElementById('root')) {
+            setTimeout(createBottomNav, 200);
+            return;
+        }
+
+        const root = document.getElementById('root');
 
         const nav = document.createElement('nav');
         nav.id = 'ocm-bottom-nav';
@@ -341,7 +310,7 @@
         nav.appendChild(sessionBtn);
         nav.appendChild(editorBtn);
         nav.appendChild(settingsBtn);
-        document.body.appendChild(nav);
+        root.appendChild(nav);
 
         log('nav created with inline onclick handlers');
     }
@@ -352,7 +321,7 @@
 
     function ensureFileChipsContainer() {
         if (document.getElementById('ocm-file-chips')) return;
-        if (!document.body) return;
+        if (!document.getElementById('root')) return;
 
         const chips = document.createElement('div');
         chips.id = 'ocm-file-chips';
