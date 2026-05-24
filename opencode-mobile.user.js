@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.1.0
+// @version      1.1.1
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
@@ -92,7 +92,8 @@
         bottom: 0;
         left: 0;
         right: 0;
-        z-index: 45;
+        z-index: 9999;
+        pointer-events: auto !important;
         display: flex;
         justify-content: space-around;
         align-items: center;
@@ -118,6 +119,8 @@
         font-size: var(--font-size-small, 11px);
         line-height: 1;
         cursor: pointer;
+        pointer-events: auto !important;
+        touch-action: manipulation;
         padding: 2px 0 0 0;
         -webkit-tap-highlight-color: transparent;
         transition: color 0.15s ease;
@@ -270,7 +273,11 @@
     // ================================================================
 
     function createBottomNav() {
-        if (document.getElementById('ocm-bottom-nav')) return;
+        const existingNav = document.getElementById('ocm-bottom-nav');
+        if (existingNav) {
+            bindBottomNavEvents(existingNav);
+            return;
+        }
         if (!document.body) return;
 
         const nav = document.createElement('nav');
@@ -300,6 +307,8 @@
     }
 
     function bindBottomNavEvents(nav) {
+        if (nav.hasAttribute('data-ocm-events-bound')) return;
+
         const sessionBtn = nav.querySelector('#ocm-nav-sessions');
         const editorBtn = nav.querySelector('#ocm-nav-editor');
         const settingsBtn = nav.querySelector('#ocm-nav-settings');
@@ -309,27 +318,42 @@
             btn.classList.add('ocm-active');
         }
 
-        sessionBtn.addEventListener('click', () => {
+        function debounce(fn) {
+            let last = 0;
+            return () => {
+                const now = Date.now();
+                if (now - last < 300) return;
+                last = now;
+                fn();
+            };
+        }
+
+        const sessionHandler = debounce(() => {
+            log('nav button clicked: sessions');
             const menuBtn = document.querySelector('[data-action="project-menu"]');
             if (menuBtn) menuBtn.click();
             setActive(sessionBtn);
         });
+        sessionBtn.addEventListener('click', sessionHandler, { capture: true });
+        sessionBtn.addEventListener('touchend', sessionHandler, { capture: true });
 
-        editorBtn.addEventListener('click', () => {
-            // Close sidebar overlay if visible
+        const editorHandler = debounce(() => {
+            log('nav button clicked: editor');
             const overlay = document.querySelector('[data-component="dialog-overlay"]');
             if (overlay && window.getComputedStyle(overlay).opacity !== '0') {
                 overlay.click();
             }
-            // Focus editor area
             const editable = document.querySelector('[contenteditable="true"]') ||
                              document.querySelector('textarea') ||
                              document.querySelector('.ProseMirror');
             if (editable) editable.focus();
             setActive(editorBtn);
         });
+        editorBtn.addEventListener('click', editorHandler, { capture: true });
+        editorBtn.addEventListener('touchend', editorHandler, { capture: true });
 
-        settingsBtn.addEventListener('click', () => {
+        const settingsHandler = debounce(() => {
+            log('nav button clicked: settings');
             const trigger = document.querySelector('[aria-label*="setting" i]') ||
                             document.querySelector('[title*="setting" i]') ||
                             document.querySelector('[data-action="settings"]') ||
@@ -337,6 +361,10 @@
             if (trigger) trigger.click();
             setActive(settingsBtn);
         });
+        settingsBtn.addEventListener('click', settingsHandler, { capture: true });
+        settingsBtn.addEventListener('touchend', settingsHandler, { capture: true });
+
+        nav.setAttribute('data-ocm-events-bound', '1');
     }
 
     // ================================================================
