@@ -5,11 +5,21 @@
   "private": true,
   "scripts": {
     "test": "npm run test:syntax && npm run test:css && npm run test:selectors",
-    "test:selectors": "node test/selector-validate.js",
     "test:syntax": "node test/syntax-check.js",
-    "test:css": "node test/css-check.js"
+    "test:css": "node test/css-check.js",
+    "test:selectors": "node test/selector-validate.js",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:mobile": "playwright test --project=\"iPhone SE\" --project=\"iPhone 14 Pro\" --project=\"Pixel 7\"",
+    "test:e2e:desktop": "playwright test --project=\"Desktop (regression)\"",
+    "test:e2e:tablet": "playwright test --project=\"iPad Mini\"",
+    "test:e2e:android": "playwright test tests/e2e/mobile-android-emulator.spec.ts",
+    "test:e2e:all": "playwright test --project=\"iPhone SE\" --project=\"iPhone 14 Pro\" --project=\"Pixel 7\" --project=\"iPad Mini\" --project=\"Desktop (regression)\""
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
   }
 }
