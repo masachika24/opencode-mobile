@@ -204,3 +204,52 @@ orchestrator が常に考慮すべき観点:
 - リポジトリ: https://github.com/masachika24/opencode-mobile
 - 当提案の元となった全バージョン履歴・成果物が参照可能
 - handoff ファイル: `dashboard/handoff.md`（最新の引継ぎ情報）
+
+---
+
+## 付録: Executive プロジェクト再開用プロンプト
+
+以下のプロンプトを Executive プロジェクトの新規セッションで貼り付けるだけで再開できます。
+
+```
+以下の改善提案に基づき、2段階品質ゲートモデルを実装してください。
+
+## 参照
+提案書: https://github.com/masachika24/opencode-mobile/blob/master/docs/quality-gate-proposal.md
+
+## 概要
+orchestrator の plan フェーズに「設計レビュー（GATE 1）」を追加し、
+quality-gate の「コード品質チェック（GATE 2）」と組み合わせた
+2段階品質ゲートモデルを導入する。
+
+## やること
+
+### P0（最優先）
+1. **orchestrator の plan 出力拡張**
+   - plan の成果物に「エッジケースマトリクス」と「要件カバレッジマトリクス」を必須セクションとして追加
+   - エッジケース観点9項目（ブラウザ差異、ロケール、同時実行、バージョン互換性、エッジ値、ネットワーク、プロセス境界、非侵襲性、可逆性）をチェックリストとして組み込む
+
+2. **dispatcher の関門強制**
+   - orchestrator の plan 結果を受け取った後、エッジケース・要件カバレッジの両マトリクスが存在するか検証
+   - 不足時は orchestrator に再 plan を要求
+   - 充足時のみ execute に進む
+   - 実装完了後に quality-gate PASS を確認してから完了とする
+
+### P1
+3. **common-rules.md 整備**
+   - GATE 1 → GATE 2 の通過強制ルール
+   - 状況確認の優先順位（プロセス→Git→実ファイル→ログ→ダッシュボード）
+
+### P2
+4. **quality-gate に handoff 整合性チェック追加**（任意）
+   - handoff ファイルの重複、ガード、行数正確性の検証
+
+## 背景
+opencode-mobile プロジェクトで発生した 8 件の問題のうち、
+5 件（62.5%）が設計起因であり、現行のプロセスでは検出不能だった。
+このモデルで予防する。
+
+## 注意
+- 実装前に設計を確認すること（設計ファースト）
+- 既存の quality-gate の動作は変更しないこと
+```
