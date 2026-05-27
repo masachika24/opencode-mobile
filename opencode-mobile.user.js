@@ -1,7 +1,9 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.5.3
+// @version      1.5.4
+// @updateURL    https://raw.githubusercontent.com/masachika24/opencode-mobile/master/opencode-mobile.user.js
+// @downloadURL  https://raw.githubusercontent.com/masachika24/opencode-mobile/master/opencode-mobile.user.js
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
@@ -60,8 +62,12 @@
 
 @media (max-width: 1023px) {
     /* --- FR-01: Viewport height stabilization --- */
-    html, body {
+    html {
         height: 100%;
+        overflow-x: hidden;
+    }
+    body {
+        min-height: 100%;
         overflow-x: hidden;
     }
 
@@ -117,8 +123,8 @@
         display: flex;
         justify-content: space-around;
         align-items: center;
-        height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
-        min-height: 3.5rem;
+        height: calc(3rem + env(safe-area-inset-bottom, 0px));
+        min-height: 3rem;
         padding-bottom: env(safe-area-inset-bottom, 0px);
         background: var(--color-surface-base, #ffffff);
         background-color: #ffffff;
@@ -139,7 +145,7 @@
         background: transparent;
         color: var(--color-text-weak-base, #888888);
         font-family: var(--font-family-sans, system-ui, -apple-system, sans-serif);
-        font-size: var(--font-size-small, 11px);
+        font-size: var(--font-size-small, 10px);
         line-height: 1;
         cursor: pointer;
         pointer-events: auto !important;
@@ -153,8 +159,8 @@
     #ocm-bottom-nav button svg {
         display: block;
         flex-shrink: 0;
-        width: 1.25rem;
-        height: 1.25rem;
+        width: 1.125rem;
+        height: 1.125rem;
         margin-bottom: 1px;
         stroke: currentColor;
         fill: none;
@@ -163,6 +169,11 @@
 
     #ocm-bottom-nav button.ocm-active {
         color: var(--color-accent-base, #0066cc);
+    }
+
+    /* --- FR-06: Sidebar panel max-width (320px on mobile) --- */
+    .fixed.top-10.bottom-0.left-0.z-50 {
+        max-width: min(320px, 85vw) !important;
     }
 
     /* --- FR-05: File chips container --- */
@@ -237,7 +248,7 @@
         padding-top: env(safe-area-inset-top, 0px) !important;
         padding-left: env(safe-area-inset-left, 0px) !important;
         padding-right: env(safe-area-inset-right, 0px) !important;
-        padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)) !important;
+        padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px)) !important;
     }
 
 }
