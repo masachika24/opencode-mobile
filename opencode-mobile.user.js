@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenCode Mobile Optimizer
 // @namespace    https://github.com/opencode-mobile
-// @version      1.5.2
+// @version      1.5.3
 // @description  Optimizes OpenCode Web UI (localhost:4000) for mobile devices
 // @author       opencode-mobile
 // @match        http://localhost:4000/*
@@ -117,11 +117,14 @@
         display: flex;
         justify-content: space-around;
         align-items: center;
-        height: 3.5rem;
+        height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+        min-height: 3.5rem;
         padding-bottom: env(safe-area-inset-bottom, 0px);
         background: var(--color-surface-base, #ffffff);
+        background-color: #ffffff;
         border-top: 1px solid var(--color-border-weak-base, #e5e5e5);
         box-sizing: border-box;
+        overflow: visible;
     }
 
     #ocm-bottom-nav button {
@@ -141,16 +144,20 @@
         cursor: pointer;
         pointer-events: auto !important;
         touch-action: manipulation;
-        padding: 2px 0 0 0;
+        padding: 0;
         -webkit-tap-highlight-color: transparent;
+        overflow: visible;
         transition: color 0.15s ease;
     }
 
     #ocm-bottom-nav button svg {
+        display: block;
+        flex-shrink: 0;
         width: 1.25rem;
         height: 1.25rem;
         margin-bottom: 1px;
         stroke: currentColor;
+        fill: none;
         pointer-events: none !important;
     }
 
